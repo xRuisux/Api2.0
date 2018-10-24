@@ -7,7 +7,7 @@ mongoose.connect('mongodb://localhost/desafiodb', { useNewUrlParser: true });
 const promosArray = [];
 
 
-const teste = Promo.find({_id: '5bcf7966eb6a864a2b7840a2'}, 'link title', (err, promos) => {
+const teste = Promo.find({}, 'link title', (err, promos) => {
     if (err) {
         console.log(err);
     } else {
@@ -18,14 +18,17 @@ const teste = Promo.find({_id: '5bcf7966eb6a864a2b7840a2'}, 'link title', (err, 
     };
 });
 
-const pup = async (promos, Pup, page) => {
+const pup = async (promos, Pup, page, browser) => {
     let pdfs = [];
     let promo = {};
-    console.log(promos);
         (async () => {
             try {
+                const browser = await puppeteer.launch();
+                const page = await  browser.newPage();
                 await page.goto(promos.link, {waitUntil: 'networkidle2'});
-                await page.pdf({path: `src/${promos.title}.pdf`, format: 'A4'});
+                await page.pdf({path: `../../src/${promos.title}.pdf`, format: 'A4'});
+                await browser.close();  
+                   
             } catch (error) {
                 console.log(error);
             }
@@ -39,15 +42,17 @@ const pup = async (promos, Pup, page) => {
 const run =  async () =>{
     teste.then(async()=>{
         //console.log (promosArray); 
-        const browser = await puppeteer.launch();
-        const page = await  browser.newPage();
-        promosArray.forEach(element => {
-            pup(element, Pup, page);
+
+        
+        promosArray.forEach (element => {
+            pup(element, Pup);
+                    
         });
+           
         
         
     });
-    await browser.close();
+    
 };
 run();
 // module.exports = run;
